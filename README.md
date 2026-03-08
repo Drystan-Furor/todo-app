@@ -52,9 +52,10 @@ curl -s http://localhost:8080/api/auth/login \
 ```
 
 Save the returned token:
-
-```bash
 TOKEN='<paste token here>'
+```bash
+
+TOKEN='eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGljZUBleGFtcGxlLmNvbSIsImlhdCI6MTc3Mjk1MzIwNywiZXhwIjoxNzcyOTU2ODA3LCJ1aWQiOjF9.hXALFWfMv1u9Ti5Qft2X7OmIHlQ9TBrCJDoledr55EA'
 ```
 
 Create a todo:
