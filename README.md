@@ -74,6 +74,43 @@ curl -s http://localhost:8080/api/todos \
   -H "Authorization: Bearer $TOKEN"
 ```
 
+List with filters and pagination:
+
+```bash
+curl -s 'http://localhost:8080/api/todos?completed=false&q=milk&page=0&size=10' \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+`GET /api/todos` supports these optional query params:
+
+- `completed`: boolean filter
+- `q`: case-insensitive substring match against `title` or `description`
+- `page`: zero-based page index, defaults to `0`
+- `size`: page size, defaults to `20`, max `100`
+
+Example list response:
+
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "title": "Buy milk",
+      "description": "2 liters",
+      "completed": false,
+      "dueDate": "2026-03-10",
+      "ownerId": 1,
+      "createdAt": "2026-03-08T09:00:00Z",
+      "updatedAt": "2026-03-08T09:00:00Z"
+    }
+  ],
+  "page": 0,
+  "size": 10,
+  "totalElements": 1,
+  "totalPages": 1
+}
+```
+
 Get one todo:
 
 ```bash

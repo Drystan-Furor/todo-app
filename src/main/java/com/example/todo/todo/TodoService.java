@@ -1,14 +1,18 @@
 package com.example.todo.todo;
 
 import com.example.todo.common.ApiException;
+import com.example.todo.todo.dto.TodoPageResponse;
 import com.example.todo.todo.dto.TodoRequest;
 import com.example.todo.todo.dto.TodoResponse;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 public class TodoService {
@@ -33,10 +37,15 @@ public class TodoService {
     }
 
     @Transactional(readOnly = true)
-    public List<TodoResponse> list(Long ownerId) {
-        return todoRepository.findAllByOwnerIdOrderByCreatedAtDesc(ownerId).stream()
-                .map(TodoResponse::from)
-                .toList();
+    public TodoPageResponse list(Long ownerId, Boolean completed, String q, int page, int size) {
+        String normalizedQuery = StringUtils.hasText(q) ? q.trim() : null;
+        Page<Todo> todoPage = todoRepository.findPageByOwnerIdAndFilters(
+                ownerId,
+                completed,
+                normalizedQuery,
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
+        );
+        return TodoPageResponse.from(todoPage);
     }
 
     @Transactional(readOnly = true)
