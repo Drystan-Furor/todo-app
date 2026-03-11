@@ -16,3 +16,4 @@ app:
   jwt:
     secret: test-secret-key-for-jwt-signing-1234
     expiration: 3600000
+    refresh-expiration: 86400000

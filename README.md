@@ -1,19 +1,46 @@
 # Todo API Baseline
 
-Runnable Spring Boot 3 / Java 17 scaffold for a multi-user todo API with JWT auth, per-user todo ownership, H2 persistence, validation, and baseline integration tests.
+Runnable Spring Boot 3 / Java 17 scaffold for a multi-user todo API with JWT auth, refresh-token rotation, per-user todo ownership, H2 persistence, optional PostgreSQL profile, and integration tests.
 
 ## Requirements
 
 - Java 17+
 - Maven 3.9+
 
-## Run
+## Run with local H2
 
 ```bash
 mvn spring-boot:run
 ```
 
 The API starts on `http://localhost:8080`.
+
+Local defaults:
+
+- Profile: default
+- Database: file-backed H2 at `./data/todo-db`
+- H2 console: `http://localhost:8080/h2-console`
+
+## Run with Docker Postgres
+
+Start PostgreSQL:
+
+```bash
+docker compose up -d postgres
+```
+
+Run the app against Postgres:
+
+```bash
+SPRING_PROFILES_ACTIVE=postgres \
+DB_URL=jdbc:postgresql://localhost:5432/todo_app \
+DB_USERNAME=todo \
+DB_PASSWORD=todo \
+APP_JWT_SECRET=change-me-in-production-please-32bytes \
+mvn spring-boot:run
+```
+
+You can override `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_PORT` in `docker-compose.yml` through environment variables.
 
 ## Test
 
@@ -25,13 +52,14 @@ mvn test
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
+- `POST /api/auth/refresh`
 - `POST /api/todos`
 - `GET /api/todos`
 - `GET /api/todos/{id}`
 - `PUT /api/todos/{id}`
 - `DELETE /api/todos/{id}`
 
-Authenticated requests must include `Authorization: Bearer <token>`.
+Authenticated requests must include `Authorization: Bearer <access-token>`.
 
 ## Example curl flow
 
@@ -52,10 +80,18 @@ curl -s http://localhost:8080/api/auth/login \
 ```
 
 Save the returned token:
-TOKEN='<paste token here>'
-```bash
 
-TOKEN='eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGljZUBleGFtcGxlLmNvbSIsImlhdCI6MTc3Mjk1MzIwNywiZXhwIjoxNzcyOTU2ODA3LCJ1aWQiOjF9.hXALFWfMv1u9Ti5Qft2X7OmIHlQ9TBrCJDoledr55EA'
+```bash
+TOKEN='<paste accessToken here>'
+REFRESH_TOKEN='<paste refreshToken here>'
+```
+
+Refresh the session:
+
+```bash
+curl -s http://localhost:8080/api/auth/refresh \
+  -H 'Content-Type: application/json' \
+  -d "{\"refreshToken\":\"$REFRESH_TOKEN\"}"
 ```
 
 Create a todo:
@@ -136,6 +172,7 @@ curl -i -X DELETE http://localhost:8080/api/todos/1 \
 
 ## Notes
 
-- Data is stored in H2 at `./data/todo-db`.
-- H2 console is enabled at `http://localhost:8080/h2-console`.
+- Access tokens are stateless JWTs; refresh tokens are opaque, persisted, and rotated on use.
+- The default profile stores data in H2 at `./data/todo-db`.
+- The `postgres` profile uses PostgreSQL settings from `application-postgres.yml`.
 - The JWT secret in `application.yml` is for local scaffold use only and should be replaced before production use.

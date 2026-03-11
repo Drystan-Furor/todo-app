@@ -17,3 +17,4 @@ app:
   jwt:
     secret: change-me-in-production-please-32bytes
     expiration: 3600000
+    refresh-expiration: 604800000

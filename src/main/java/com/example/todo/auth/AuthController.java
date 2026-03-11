@@ -2,6 +2,7 @@ package com.example.todo.auth;
 
 import com.example.todo.auth.dto.AuthRequest;
 import com.example.todo.auth.dto.AuthResponse;
+import com.example.todo.auth.dto.RefreshTokenRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,5 +31,11 @@ public class AuthController {
     @ResponseStatus(HttpStatus.OK)
     public AuthResponse login(@Valid @RequestBody AuthRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping("/refresh")
+    @ResponseStatus(HttpStatus.OK)
+    public AuthResponse refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return authService.refresh(request);
     }
 }
